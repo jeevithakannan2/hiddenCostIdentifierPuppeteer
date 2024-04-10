@@ -1,9 +1,10 @@
-puppeteer = require('puppeteer');
+// import { sleep } from "bun";
+const puppeteer = require("puppeteer");
 
 async function run(link) {
-    const browser = await puppeteer.launch({ userDataDir: "./user-data", headless: true });
+    const browser = await puppeteer.launch({ args:['--no-sandbox', '--single-process', '--disable-setuid-sandbox', '--no-zygote'], executablePath: process.env.PUPPETEER_EXECUTABLE_PATH ,userDataDir: "./user-data", headless: true });
     const page = await browser.newPage();
-    await page.goto(link);
+    await page.goto(link, { waitUntil: 'domcontentloaded' });
     await page.click('#buy-now-button');
     await page.waitForNavigation();
 
@@ -36,14 +37,9 @@ async function run(link) {
         optionsArray.shift();
         return optionsArray;
     });
-
     for (const option of options) {
         await page.select("select[name='ppw-bankSelection_dropdown']", option.value);
-        await page.evaluate(() => {
-            return new Promise(resolve => {
-              setTimeout(resolve, 2000);
-            });
-        });
+        // await sleep(1000);
         if ((await page.content()).includes(`${option.text} is not available due to technical issue. Choose a different payment option to complete your payment.`)) {
             continue;
         } else {
@@ -72,4 +68,4 @@ async function run(link) {
     return result;    
 }
 
-module.exports = { asyncFunction: run };
+module.exports = { AsyncFunction: run};

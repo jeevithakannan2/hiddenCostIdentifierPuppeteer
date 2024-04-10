@@ -1,5 +1,5 @@
-const express = require('express');
-const { asyncFunction } = require('./amazon');
+const express = require("express");
+const { AsyncFunction } = require("./amazon.js");
 const app = express();
 const port = 3000;
 
@@ -9,8 +9,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use((req, res, next) => {
     console.log(`Request from: ${req.ip}:${port}`);
     next();
-  });
-  
+});
+
 app.post('/run', (req, res) => {
     const { link } = req.body;
 
@@ -18,7 +18,7 @@ app.post('/run', (req, res) => {
         return res.status(400).json({'Error': 'Link is required'});
     }
     
-    asyncFunction(link).then(result => {    
+    AsyncFunction(link).then(result => {    
         console.log(result);
         res.status(200).json(result);
     }).catch(err => {
@@ -27,6 +27,21 @@ app.post('/run', (req, res) => {
     });
 });
 
-app.listen(port, '0.0.0.0', () => {
+const server = app.listen(port, '0.0.0.0', () => {
     console.log(`Server is listening at port :${port}`);
+});
+
+server.on('close', () => {
+    console.log("Server is closing");
+    browser.close();
+})
+
+process.on('SIGINT', () => {
+    console.log('Received SIGINT. Closing server...');
+    server.close();
+});
+
+process.on('SIGTERM', () => {
+    console.log('Received SIGTERM. Closing server...');
+    server.close();
 });
