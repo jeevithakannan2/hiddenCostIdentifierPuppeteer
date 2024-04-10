@@ -27,21 +27,7 @@ app.post('/run', (req, res) => {
     });
 });
 
-const server = app.listen(port, '0.0.0.0', () => {
+app.listen(port, '0.0.0.0', () => {
     console.log(`Server is listening at port :${port}`);
 });
 
-server.on('close', () => {
-    console.log("Server is closing");
-    browser.close();
-})
-
-process.on('SIGINT', () => {
-    console.log('Received SIGINT. Closing server...');
-    server.close();
-});
-
-process.on('SIGTERM', () => {
-    console.log('Received SIGTERM. Closing server...');
-    server.close();
-});
